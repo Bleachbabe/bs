@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artists</title>
+  <style>
+    @font-face {
+      font-family: 'ABCPerm';
+      src: local('ABC P3rman3nt Unlicens'),
+           local('ABCPermanentUnlicens'),
+           local('ABC Permanent Unlicens');
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    /* ── Snap scroll container ── */
+    .scroll-container {
+      width: 100%;
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+    }
+    .scroll-container::-webkit-scrollbar { display: none; }
+
+    /* ── Individual artist slides ── */
+    .slide {
+      min-height: clamp(70px, 10vw, 140px);
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      scroll-snap-align: center;
+      cursor: pointer;
+      padding: 0 0 0 0;
+      transition: min-height 0.4s ease;
+    }
+
+    /* Padding slides so first/last name can reach center */
+    .slide-spacer {
+      height: 50vh;
+      scroll-snap-align: none;
+    }
+
+    .artist-name {
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(72px, 14vw, 220px);
+      color: #000;
+      white-space: nowrap;
+      line-height: 1;
+      transform-origin: center center;
+      transition: transform 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: block;
+      /* Soft contour / outline */
+      text-shadow:
+        0   0   6px rgba(0,0,0,0.55),
+        1px 2px 6px rgba(0,0,0,0.30),
+       -1px 2px 6px rgba(0,0,0,0.30);
+      -webkit-text-stroke: 0.5px rgba(0,0,0,0.4);
+    }
+
+    /* ── Fixed grey oval overlay ── */
+    .brush {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 10;
+      mix-blend-mode: difference;
+      background: linear-gradient(to bottom, #fff 0%, #000 25%, #ff69b4 50%, #000 75%, #fff 100%);
+    }
+
+    /* Ensure scroll container and slides sit above bg */
+    .scroll-container { position: relative; z-index: 1; }
+
+    /* ── Artist info panel ── */
+    .artist-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(8px, 1.5vw, 20px);
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.45s ease, padding 0.45s ease;
+      padding: 0;
+      pointer-events: none;
+    }
+
+    .artist-info.open {
+      max-height: 900px;
+      opacity: 1;
+      padding: clamp(10px, 2vw, 26px) 0 clamp(14px, 2.5vw, 32px);
+      pointer-events: auto;
+    }
+
+    .artist-photo {
+      width: clamp(140px, 22vw, 360px);
+      height: clamp(140px, 22vw, 360px);
+      object-fit: cover;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .artist-desc {
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(13px, 1.8vw, 28px);
+      color: #000;
+      white-space: normal;
+      text-align: center;
+      max-width: 55vw;
+      line-height: 1.6;
+      transform: scaleY(0.58);
+      transform-origin: center center;
+      display: block;
+      text-shadow:
+        0   0   4px rgba(0,0,0,0.45),
+        1px 1px 4px rgba(0,0,0,0.25);
+      -webkit-text-stroke: 0.3px rgba(0,0,0,0.3);
+      letter-spacing: 0.02em;
+    }
+
+    .artist-meta {
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(9px, 1.1vw, 17px);
+      color: #000;
+      white-space: nowrap;
+      text-align: center;
+      line-height: 1;
+      transform: scaleY(0.58);
+      transform-origin: center center;
+      display: block;
+      opacity: 0.55;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    /* ── Top navigation ── */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(16px, 3vw, 48px);
+      padding: clamp(12px, 2vw, 26px) 0;
+      pointer-events: auto;
+    }
+
+    /* Blur fade behind menu */
+    .top-nav::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      height: 200%;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.55) 60%, transparent 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .top-nav a {
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(12px, 1.5vw, 22px);
+      color: #000;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transform: scaleY(0.58);
+      transform-origin: center center;
+      display: block;
+      opacity: 0.75;
+      transition: opacity 0.2s ease;
+    }
+
+    .top-nav a:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a href="#">Backslash</a>
+    <a href="#">Artists</a>
+    <a href="#">Timetable</a>
+    <a href="#">Day</a>
+    <a href="#">Gallery</a>
+    <a href="#">Info</a>
+  </nav>
+
+  <div class="scroll-container">
+    <div class="slide-spacer"></div>
+
+    <div class="slide" data-img="1">
+      <span class="artist-name">Anu Cato</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/1.webp" alt="Anu Cato">
+        <span class="artist-desc">DJ and producer rooted in Lagos, Anu Cato blends Afrobeat percussion with hypnotic electronic textures. Her sets move between deep club pressure and open-air euphoria. A sound entirely her own — shaped by three continents and a refusal to stay still.</span>
+        <span class="artist-meta">Fri 23:00 · Main Stage · Afro-electronic</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="2">
+      <span class="artist-name">djadjamai</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/2.webp" alt="djadjamai">
+        <span class="artist-desc">Born in Paris, raised between two continents, djadjamai fuses Amapiano grooves with hard-edged club production. Her mixes are dense, warm and relentlessly forward-moving. Every set is a lesson in how much space a single record can hold.</span>
+        <span class="artist-meta">Sat 00:30 · Stage 2 · Amapiano / Club</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="3">
+      <span class="artist-name">FUMU</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/3.webp" alt="FUMU">
+        <span class="artist-desc">Berlin-based live act FUMU builds immersive performances from experimental bass, field recordings and modular synthesis. Expect a set that ruptures genre and leaves the floor rewired. FUMU doesn't perform so much as reconfigure the room entirely.</span>
+        <span class="artist-meta">Fri 01:00 · Stage 3 · Experimental bass</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="4">
+      <span class="artist-name">Isi!</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/4.webp" alt="Isi!">
+        <span class="artist-desc">Vienna's Isi! is a force in the Baile Funk and Kuduro underground. She collects music obsessively across three continents and translates that energy into sets of pure joyful chaos. There is no one else doing it quite like this.</span>
+        <span class="artist-meta">Sat 22:00 · Stage 2 · Baile Funk / Kuduro</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="5">
+      <span class="artist-name">GAto</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/5.webp" alt="GAto">
+        <span class="artist-desc">Producer from São Paulo whose hybrid take on Funk and club music has earned him spots across Europe and South America. GAto's tracks hit somewhere between carnival and crash. His music is fast, physical and completely impossible to ignore.</span>
+        <span class="artist-meta">Sun 00:00 · Main Stage · Funk / Hybridcore</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="6">
+      <span class="artist-name">NaKo</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/6.webp" alt="NaKo">
+        <span class="artist-desc">Nairobi-based DJ and selector NaKo draws on Genge, Afroclub and coastal rhythms to craft sets that feel deeply local yet radically global. She plays loud and means every beat. Her selections carry the dust and heat of East Africa into every room she enters.</span>
+        <span class="artist-meta">Fri 21:00 · Stage 2 · Genge / Afroclub</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="7">
+      <span class="artist-name">YSEI</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/7.webp" alt="YSEI">
+        <span class="artist-desc">Seoul's YSEI bridges Korean noise traditions with peak-time techno infrastructure. Her live sets are precise, disorienting and viscerally physical — architecture built to collapse. YSEI is one of the most singular voices in contemporary club music.</span>
+        <span class="artist-meta">Sat 02:00 · Stage 3 · Techno / K-noise</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="8">
+      <span class="artist-name">Lumi.B</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/8.webp" alt="Lumi.B">
+        <span class="artist-desc">DJ and MC from London operating at the intersection of UKG, Drill and experimental club. Lumi.B's voice is as much an instrument as any record she plays — raw, confident, uncut. She commands floors through sheer presence and an encyclopaedic knowledge of sound.</span>
+        <span class="artist-meta">Fri 22:30 · Main Stage · UKG / Drill</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="9">
+      <span class="artist-name">dAko</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/9.webp" alt="dAko">
+        <span class="artist-desc">Accra-born dAko has become one of the most sought-after selectors in West African club culture. His Afrobeats sets are rooted in tradition but permanently pointed toward what's next. He plays with the patience of someone who knows exactly where the room is going.</span>
+        <span class="artist-meta">Sat 21:00 · Stage 2 · Afrobeats</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="10">
+      <span class="artist-name">PRXMX</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/10.webp" alt="PRXMX">
+        <span class="artist-desc">Amsterdam producer PRXMX works in the space between deconstructed club and broken techno. Dense, layered, difficult to categorise — his music demands full attention and repays it completely. Every release is a structural experiment that somehow still makes the body move.</span>
+        <span class="artist-meta">Sat 03:00 · Stage 3 · Deconstructed club</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="11">
+      <span class="artist-name">Safi!</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/11.webp" alt="Safi!">
+        <span class="artist-desc">Safi! brings Electro Chaabi and Arabic club sounds from Cairo's underground into international circulation. Her sets are politically charged, rhythmically fierce and deeply rooted. She plays like the music has been waiting a long time to be heard at this volume.</span>
+        <span class="artist-meta">Fri 00:00 · Stage 2 · Electro Chaabi</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="12">
+      <span class="artist-name">CXLOE</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/12.webp" alt="CXLOE">
+        <span class="artist-desc">Melbourne-based live act CXLOE weaponises hyperpop and noise into performances that feel like software crashing in real time. Loud, fractured and completely alive. CXLOE operates at the edge of what recorded music can sustain and pushes further every time.</span>
+        <span class="artist-meta">Sat 23:30 · Stage 3 · Hyperpop / Noise</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="13">
+      <span class="artist-name">Nneka</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/13.webp" alt="Nneka">
+        <span class="artist-desc">DJ and vocalist from Lagos, Nneka layers her own voice over Afro-soul selections to create something singular. Every performance is part set, part ceremony — deeply felt throughout. Her presence transforms a crowd into a congregation without anyone quite noticing when it happened.</span>
+        <span class="artist-meta">Sun 21:30 · Main Stage · Afro-soul</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="14">
+      <span class="artist-name">fLo</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/14.webp" alt="fLo">
+        <span class="artist-desc">Mexico City's fLo pulls from Cumbia, regional sound system culture and contemporary club music to build sets of relentless groove. She plays like she has somewhere urgent to be and intends to take the entire room with her.</span>
+        <span class="artist-meta">Fri 23:30 · Stage 2 · Cumbia / Club</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="15">
+      <span class="artist-name">XANA</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/15.webp" alt="XANA">
+        <span class="artist-desc">Lisbon-based live act XANA fuses Fado's aching melancholy with electronic production to create something hauntingly new. Her performances carry the weight of tradition and the lightness of total reinvention. XANA is one of Europe's most compelling voices right now.</span>
+        <span class="artist-meta">Sat 21:00 · Main Stage · Fado / Electronic</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="16">
+      <span class="artist-name">Pelo</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/16.webp" alt="Pelo">
+        <span class="artist-desc">Buenos Aires DJ Pelo operates in the hard end of Perreo and hardcore, delivering sets that function like a physical confrontation. Sweaty, relentless and absolutely unafraid. He plays without mercy and the crowd gives it right back.</span>
+        <span class="artist-meta">Sun 01:00 · Stage 2 · Perreo / Hardcore</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="1">
+      <span class="artist-name">DMBA</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/1.webp" alt="DMBA">
+        <span class="artist-desc">Producer from Kinshasa, DMBA rewires Ndombolo rhythms through electronic production to create music that feels ancient and totally forward at once. His debut release reverberated across three continents and established him as one of the most important voices emerging from Central Africa.</span>
+        <span class="artist-meta">Fri 21:30 · Stage 3 · Ndombolo / Electro</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="2">
+      <span class="artist-name">Yosa!</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/2.webp" alt="Yosa!">
+        <span class="artist-desc">Osaka DJ Yosa! has been a driving force in Japan's Footwork and Juke scene for nearly a decade. Her sets are fast, intricate and completely intoxicating — rhythmic intelligence operating at full speed. She plays like the tempo is a challenge she intends to win.</span>
+        <span class="artist-meta">Sat 01:00 · Stage 3 · Footwork / Juke</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="3">
+      <span class="artist-name">KXNG</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/3.webp" alt="KXNG">
+        <span class="artist-desc">Toronto MC and DJ KXNG moves between Hip-hop and Grime with sharp precision, building sets that feel like confrontations — pointed, wordy, heavy with intent. His performances are dense with language and loaded with momentum from the first bar to the last.</span>
+        <span class="artist-meta">Sun 22:00 · Main Stage · Hip-hop / Grime</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="4">
+      <span class="artist-name">Boé</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/4.webp" alt="Boé">
+        <span class="artist-desc">Boé brings the electrifying energy of Abidjan's Coupé-décalé scene to every room she enters. Her selections oscillate between celebration and something much more complex and searching. She plays with a joy that never lets you forget how serious she is about the music.</span>
+        <span class="artist-meta">Sat 22:30 · Stage 2 · Coupé-décalé</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="5">
+      <span class="artist-name">Temi!</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/5.webp" alt="Temi!">
+        <span class="artist-desc">Lagos live act Temi! has built a reputation for performances that blur the line between DJ set and concert. Afropop melodies ride over House rhythms in a hybrid that feels completely inevitable. Every time Temi! plays it sounds like the only possible version of what music could be right now.</span>
+        <span class="artist-meta">Fri 00:30 · Main Stage · Afropop / House</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="6">
+      <span class="artist-name">AxMo</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/6.webp" alt="AxMo">
+        <span class="artist-desc">Cape Town's AxMo is a pillar of South Africa's Afro-house underground. His deep, melodic selections carry a spiritual weight that opens up the floor without ever forcing it. AxMo plays with restraint and confidence — the two things that matter most in a long room.</span>
+        <span class="artist-meta">Sun 23:00 · Stage 2 · Afro-house</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="7">
+      <span class="artist-name">VVNDR</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/7.webp" alt="VVNDR">
+        <span class="artist-desc">Rotterdam live act VVNDR works in industrial noise, EBM and body music — building performances of tremendous structural force. Dark, disciplined and impossible to look away from. VVNDR turns physical discomfort into something you desperately want to last longer.</span>
+        <span class="artist-meta">Sat 02:30 · Stage 3 · Industrial / EBM</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="8">
+      <span class="artist-name">Jace.B</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/8.webp" alt="Jace.B">
+        <span class="artist-desc">Chicago-bred DJ Jace.B carries the heritage of Footwork and House in every selection. His understanding of rhythm is almost architectural — sets that construct and dismantle in equal measure. To watch Jace.B work a floor is to understand why Chicago changed music forever.</span>
+        <span class="artist-meta">Sun 00:30 · Stage 3 · Footwork / House</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="9">
+      <span class="artist-name">KYMA</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/9.webp" alt="KYMA">
+        <span class="artist-desc">Athens-based live act KYMA draws on Mediterranean folk traditions and bass music to create something startlingly original. Her performances feel like rituals in unfamiliar languages — urgent and completely absorbing. KYMA is building a sound that has no precedent and no obvious ceiling.</span>
+        <span class="artist-meta">Fri 22:00 · Stage 3 · Mediterranean bass</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="10">
+      <span class="artist-name">Prxz</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/10.webp" alt="Prxz">
+        <span class="artist-desc">Johannesburg DJ Prxz moves fluidly between Gqom and Amapiano, building sets that carry the heat and pace of South African club culture into international contexts with total authority. He plays with a clarity of vision that makes every transition feel like the only choice.</span>
+        <span class="artist-meta">Sat 23:00 · Stage 2 · Gqom / Amapiano</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="11">
+      <span class="artist-name">OwuSu</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/11.webp" alt="OwuSu">
+        <span class="artist-desc">Accra-based selector OwuSu digs deep into Highlife history and feeds it back into contemporary Afroclub. His sets are joyful, intelligent and dense with musical memory. OwuSu plays like every record is a story he has been waiting for the right moment to tell.</span>
+        <span class="artist-meta">Sun 21:00 · Stage 2 · Highlife / Afroclub</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="12">
+      <span class="artist-name">SLWMO</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/12.webp" alt="SLWMO">
+        <span class="artist-desc">Tokyo live act SLWMO makes music that moves at the speed of thought — Ambient textures and Slowcore rhythms stretched to near-breaking point. A rare artist who makes stillness feel like momentum. SLWMO's performances ask something of the listener and reward them completely.</span>
+        <span class="artist-meta">Fri 20:00 · Stage 3 · Ambient / Slowcore</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="13">
+      <span class="artist-name">Rexx!</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/13.webp" alt="Rexx!">
+        <span class="artist-desc">Kingston MC and DJ Rexx! is a practitioner of Dancehall and Dub in their most kinetic forms. His sets are a rolling history lesson delivered at maximum volume with zero apology. Rexx! plays with the authority of someone who was raised on the music and intends to protect it.</span>
+        <span class="artist-meta">Sun 02:00 · Stage 2 · Dancehall / Dub</span>
+      </div>
+    </div>
+
+    <div class="slide" data-img="14">
+      <span class="artist-name">BuJu</span>
+      <div class="artist-info">
+        <img class="artist-photo" src="content/14.webp" alt="BuJu">
+
+        <span class="artist-desc">Lagos DJ BuJu sits at the soft, seductive edge of Afroswing and R&B — his selections are carefully crafted and warmly delivered. A DJ who understands that atmosphere is everything and builds it slowly, deliberately, without a single wasted record.</span>
+        <span class="artist-meta">Sat 20:30 · Stage 2 · Afroswing / R&B</span>
+      </div>
+    </div>
+
+    <div class="slide-spacer"></div>
+  </div>
+
+  <!-- Fixed grey brush stroke – mix-blend-mode: difference -->
+  <div class="brush"></div>
+
+  <script>
+    const container = document.querySelector('.scroll-container');
+    const slides    = Array.from(document.querySelectorAll('.slide'));
+
+    let currentImg  = null;
+
+    // ── Hover wobble animation state ──────────────────────────────────
+    const baseTransformData = new WeakMap(); // stores {angle, scale} per nameEl
+    const animatingSet      = new Set();
+
+    function runWobble(nameEl) {
+      if (animatingSet.has(nameEl)) return;
+      animatingSet.add(nameEl);
+
+      const base    = baseTransformData.get(nameEl) || { angle: 0, scale: 1 };
+      const total   = 900; // ms
+      const start   = performance.now();
+
+      function frame(now) {
+        const p      = Math.min((now - start) / total, 1);
+        // ease: left peak at p=0.25, right peak at p=0.65, back at p=1
+        let wobble   = 0;
+        let spin     = 0;
+        if      (p < 0.25) { wobble = -38 * easeIn(p / 0.25);               spin = -6 * easeIn(p / 0.25); }
+        else if (p < 0.65) { wobble = -38 + 76 * easeIn((p - 0.25) / 0.40); spin = -6 + 12 * easeIn((p - 0.25) / 0.40); }
+        else               { wobble =  38 - 38 * easeIn((p - 0.65) / 0.35); spin =  6 -  6 * easeIn((p - 0.65) / 0.35); }
+
+        nameEl.style.transform = `perspective(280px) rotateY(${base.angle + wobble}deg) rotateZ(${spin}deg) scale(${base.scale}) scaleY(0.58)`;
+
+        if (p < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          animatingSet.delete(nameEl);
+          // restore scroll-driven value immediately
+          nameEl.style.transform = `perspective(280px) rotateY(${base.angle}deg) rotateZ(0deg) scale(${base.scale}) scaleY(0.58)`;
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function easeIn(t) { const t4 = t*t*t*t; return t4*t4*t4; } // t^12 — frozen, then violent snap
+
+    // ── Spotlight gradient colour animation ───────────────────────────
+    const brushEl       = document.querySelector('.brush');
+    const colBase       = [255, 105, 180]; // #ff69b4
+    const colHover      = [253,  73, 251]; // #fd49fb
+    let   brushTarget   = 0; // 0 = base, 1 = hover
+    let   brushProgress = 0;
+    let   brushRafId    = null;
+
+    function applyBrushColor(p) {
+      const r = Math.round(colBase[0] + (colHover[0] - colBase[0]) * p);
+      const g = Math.round(colBase[1] + (colHover[1] - colBase[1]) * p);
+      const b = Math.round(colBase[2] + (colHover[2] - colBase[2]) * p);
+      brushEl.style.background = `linear-gradient(to bottom, #fff 0%, #000 25%, rgb(${r},${g},${b}) 50%, #000 75%, #fff 100%)`;
+    }
+
+    function tickBrush() {
+      brushRafId = null;
+      const diff = brushTarget - brushProgress;
+      if (Math.abs(diff) < 0.005) { brushProgress = brushTarget; applyBrushColor(brushProgress); return; }
+      brushProgress += diff * 0.08; // smooth lerp — ~500ms feel
+      applyBrushColor(brushProgress);
+      brushRafId = requestAnimationFrame(tickBrush);
+    }
+
+    function setBrushTarget(t) {
+      brushTarget = t;
+      if (!brushRafId) brushRafId = requestAnimationFrame(tickBrush);
+    }
+
+    // ── Audio synthesis ──────────────────────────────────────────────
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function noise(duration, filter = null, filterFreq = 2000, gain = 0.6) {
+      const buf  = audioCtx.createBuffer(1, audioCtx.sampleRate * duration, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      const g = audioCtx.createGain();
+      if (filter) {
+        const f = audioCtx.createBiquadFilter();
+        f.type = filter; f.frequency.value = filterFreq;
+        src.connect(f); f.connect(g);
+      } else {
+        src.connect(g);
+      }
+      g.connect(audioCtx.destination);
+      return { src, gain: g };
+    }
+
+    function osc(freq, type = 'sine') {
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type; o.frequency.value = freq;
+      o.connect(g); g.connect(audioCtx.destination);
+      return { osc: o, gain: g };
+    }
+
+    function env(gainNode, peak, decay, t) {
+      gainNode.gain.setValueAtTime(peak, t);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+    }
+
+    const sounds = {
+      1:  (t) => { // Snare A
+            const { src, gain: g } = noise(0.2, 'bandpass', 800, 0.7);
+            env(g, 0.7, 0.18, t); g.gain.setValueAtTime(0.7, t); src.start(t); src.stop(t + 0.2);
+            const { osc: o, gain: og } = osc(200); env(og, 0.4, 0.08, t); o.start(t); o.stop(t + 0.1);
+          },
+      2:  (t) => { // Kick
+            const { osc: o, gain: g } = osc(60);
+            o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.1);
+            env(g, 0.9, 0.3, t); o.start(t); o.stop(t + 0.35);
+          },
+      3:  (t) => { // Closed hi-hat
+            const { src, gain: g } = noise(0.08, 'highpass', 8000, 0.4);
+            env(g, 0.4, 0.05, t); g.gain.setValueAtTime(0.4, t); src.start(t); src.stop(t + 0.08);
+          },
+      4:  (t) => { // Clap
+            [0, 0.01, 0.02].forEach(offset => {
+              const { src, gain: g } = noise(0.07, 'bandpass', 1200, 0.5);
+              g.gain.setValueAtTime(0.5, t + offset);
+              g.gain.exponentialRampToValueAtTime(0.0001, t + offset + 0.06);
+              src.start(t + offset); src.stop(t + offset + 0.07);
+            });
+          },
+      5:  (t) => { // Tom high
+            const { osc: o, gain: g } = osc(320);
+            o.frequency.setValueAtTime(320, t); o.frequency.exponentialRampToValueAtTime(180, t + 0.15);
+            env(g, 0.7, 0.2, t); o.start(t); o.stop(t + 0.25);
+          },
+      6:  (t) => { // Tom low
+            const { osc: o, gain: g } = osc(100);
+            o.frequency.setValueAtTime(100, t); o.frequency.exponentialRampToValueAtTime(55, t + 0.2);
+            env(g, 0.8, 0.3, t); o.start(t); o.stop(t + 0.35);
+          },
+      7:  (t) => { // Open hi-hat
+            const { src, gain: g } = noise(0.4, 'highpass', 7000, 0.35);
+            env(g, 0.35, 0.35, t); g.gain.setValueAtTime(0.35, t); src.start(t); src.stop(t + 0.4);
+          },
+      8:  (t) => { // Rim shot
+            const { osc: o, gain: g } = osc(900, 'triangle');
+            env(g, 0.6, 0.04, t); o.start(t); o.stop(t + 0.05);
+            const { src, gain: ng } = noise(0.04, 'bandpass', 1800, 0.3);
+            env(ng, 0.3, 0.03, t); ng.gain.setValueAtTime(0.3, t); src.start(t); src.stop(t + 0.04);
+          },
+      9:  (t) => { // 808 kick
+            const { osc: o, gain: g } = osc(55);
+            o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.15);
+            env(g, 1.0, 0.6, t); o.start(t); o.stop(t + 0.7);
+          },
+      10: (t) => { // Cowbell
+            [562, 845].forEach(freq => {
+              const { osc: o, gain: g } = osc(freq, 'square');
+              env(g, 0.25, 0.5, t); o.start(t); o.stop(t + 0.6);
+            });
+          },
+      11: (t) => { // Crash
+            const { src, gain: g } = noise(1.0, 'highpass', 5000, 0.3);
+            g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.0);
+            src.start(t); src.stop(t + 1.0);
+          },
+      12: (t) => { // Clave
+            const { osc: o, gain: g } = osc(1400, 'sine');
+            env(g, 0.7, 0.025, t); o.start(t); o.stop(t + 0.03);
+          },
+      13: (t) => { // Snare B (deeper)
+            const { src, gain: g } = noise(0.25, 'bandpass', 500, 0.6);
+            env(g, 0.6, 0.22, t); g.gain.setValueAtTime(0.6, t); src.start(t); src.stop(t + 0.25);
+            const { osc: o, gain: og } = osc(120); env(og, 0.5, 0.1, t); o.start(t); o.stop(t + 0.12);
+          },
+      14: (t) => { // Shaker
+            const { src, gain: g } = noise(0.06, 'bandpass', 5000, 0.25);
+            env(g, 0.25, 0.05, t); g.gain.setValueAtTime(0.25, t); src.start(t); src.stop(t + 0.06);
+          },
+      15: (t) => { // Synth perc
+            const { osc: o, gain: g } = osc(440, 'triangle');
+            o.frequency.setValueAtTime(660, t); o.frequency.exponentialRampToValueAtTime(220, t + 0.12);
+            env(g, 0.6, 0.15, t); o.start(t); o.stop(t + 0.2);
+          },
+      16: (t) => { // Deep sub kick
+            const { osc: o, gain: g } = osc(40);
+            o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(30, t + 0.2);
+            env(g, 1.0, 0.5, t); o.start(t); o.stop(t + 0.55);
+          },
+    };
+
+    function playSample(imgNum) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const fn = sounds[parseInt(imgNum)];
+      if (fn) fn(audioCtx.currentTime);
+    }
+
+    function speakName(name) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(name);
+      u.rate = 1.0;
+      u.pitch = 1.0;
+      window.speechSynthesis.speak(u);
+    }
+    // ── End audio ────────────────────────────────────────────────────
+
+    function setBackground(imgNum, name) {
+      if (imgNum === currentImg) return;
+      currentImg = imgNum;
+
+      playSample(imgNum);
+      speakName(name);
+    }
+
+    function update() {
+      const vh      = container.clientHeight;
+      const centerY = vh / 2;
+      let   closest = null;
+      let   closestDist = Infinity;
+
+      slides.forEach((slide, i) => {
+        const rect        = slide.getBoundingClientRect();
+        const slideCenter = rect.top + rect.height / 2;
+        const dist        = slideCenter - centerY;
+        const absDist     = Math.abs(dist);
+
+        if (absDist < closestDist) {
+          closestDist = absDist;
+          closest     = slide;
+        }
+
+        const t         = Math.min(absDist / (vh * 0.5), 1);
+        const eased     = t * t * (3 - 2 * t); /* smoothstep */
+        const direction = i % 2 === 0 ? 1 : -1;
+        const angle     = eased * 42 * direction;
+        const scale     = 1 + eased * 0.35;
+
+        const nameEl = slide.querySelector('.artist-name');
+        if (nameEl) {
+          baseTransformData.set(nameEl, { angle, scale });
+          if (!animatingSet.has(nameEl)) {
+            nameEl.style.transform = `perspective(280px) rotateY(${angle}deg) scale(${scale}) scaleY(0.58)`;
+          }
+        }
+        slide.style.transform = '';
+      });
+
+      if (closest) {
+        spotlightSlide = closest;
+        const name = closest.querySelector('.artist-name').textContent;
+        setBackground(closest.dataset.img, name);
+
+        if (openSlide && openSlide !== closest) {
+          openSlide.querySelector('.artist-info')?.classList.remove('open');
+          openSlide = null;
+        }
+      }
+    }
+
+    // ── Click to toggle artist info ───────────────────────────────────
+    let openSlide     = null;
+    let spotlightSlide = null;
+
+    slides.forEach(slide => {
+      slide.addEventListener('click', () => {
+        const info = slide.querySelector('.artist-info');
+        if (!info) return;
+        const isOpen = info.classList.contains('open');
+        if (openSlide && openSlide !== slide) {
+          openSlide.querySelector('.artist-info')?.classList.remove('open');
+        }
+        info.classList.toggle('open', !isOpen);
+        openSlide = !isOpen ? slide : null;
+      });
+    });
+
+    // ── Hover wobble trigger ──────────────────────────────────────────
+    slides.forEach(slide => {
+      const nameEl = slide.querySelector('.artist-name');
+      if (nameEl) {
+        nameEl.addEventListener('mouseenter', () => {
+          if (slide === spotlightSlide) { runWobble(nameEl); setBrushTarget(1); }
+        });
+        nameEl.addEventListener('mouseleave', () => setBrushTarget(0));
+      }
+    });
+
+    container.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+    update();
+  </script>
+
+</body>
+</html>
