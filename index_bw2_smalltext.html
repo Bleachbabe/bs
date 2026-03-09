@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artists</title>
+  <style>
+    @font-face {
+      font-family: 'ABCPerm';
+      src: local('ABC P3rman3nt Unlicens'),
+           local('ABCPermanentUnlicens'),
+           local('ABC Permanent Unlicens');
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    /* ── Snap scroll container ── */
+    .scroll-container {
+      width: 100%;
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+    }
+    .scroll-container::-webkit-scrollbar { display: none; }
+
+    /* ── Individual artist slides ── */
+    .slide {
+      height: clamp(70px, 10vw, 140px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      scroll-snap-align: center;
+    }
+
+    /* Padding slides so first/last name can reach center */
+    .slide-spacer {
+      height: 50vh;
+      scroll-snap-align: none;
+    }
+
+    .artist-name {
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(72px, 14vw, 220px);
+      color: #000;
+      white-space: nowrap;
+      line-height: 1;
+      /* Vertical compression */
+      transform: scaleY(0.58);
+      transform-origin: center center;
+      display: block;
+      /* Soft contour / outline */
+      text-shadow:
+        0   0   6px rgba(0,0,0,0.55),
+        1px 2px 6px rgba(0,0,0,0.30),
+       -1px 2px 6px rgba(0,0,0,0.30);
+      -webkit-text-stroke: 0.5px rgba(0,0,0,0.4);
+    }
+
+    /* ── Fixed grey oval overlay ── */
+    .brush {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-0.6deg);
+      width: 100vw;
+      height: 500px;
+      pointer-events: none;
+      z-index: 10;
+      mix-blend-mode: difference;
+      background: radial-gradient(ellipse 50% 45% at 50% 50%, rgba(158,158,158,1) 0%, rgba(150,150,150,0.5) 50%, transparent 100%);
+    }
+
+    /* ── Fixed info overlay ── */
+    .info-overlay {
+      position: fixed;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5vw;
+      padding: 0 3vw;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    .info-name {
+      flex: 0 0 auto;
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-weight: bold;
+      font-size: clamp(10px, 1.2vw, 18px);
+      color: #fff;
+      text-shadow: 0 0 8px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.6), 0 0 40px rgba(255,255,255,0.3);
+      white-space: nowrap;
+      overflow: visible;
+      transform: scaleX(1.55);
+      transform-origin: center center;
+      display: inline-block;
+    }
+
+    .info-time {
+      flex: 0 0 auto;
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-size: clamp(10px, 1.2vw, 18px);
+      color: #fff;
+      text-shadow: 0 0 8px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.6), 0 0 40px rgba(255,255,255,0.3);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .info-type {
+      flex: 0 0 auto;
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-size: clamp(10px, 1.2vw, 18px);
+      color: #fff;
+      text-shadow: 0 0 8px rgba(255,255,255,0.9), 0 0 20px rgba(255,255,255,0.6), 0 0 40px rgba(255,255,255,0.3);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scroll-container">
+    <div class="slide-spacer"></div>
+    <div class="slide" data-time="20:00" data-type="Live"><span class="artist-name">Anu Cato</span></div>
+    <div class="slide" data-time="20:45" data-type="DJ"><span class="artist-name">djadjamai</span></div>
+    <div class="slide" data-time="21:30" data-type="Live"><span class="artist-name">FUMU</span></div>
+    <div class="slide" data-time="22:15" data-type="DJ"><span class="artist-name">Isi!</span></div>
+    <div class="slide" data-time="23:00" data-type="Live"><span class="artist-name">GAto</span></div>
+    <div class="slide" data-time="23:45" data-type="DJ"><span class="artist-name">NaKo</span></div>
+    <div class="slide" data-time="00:30" data-type="Live"><span class="artist-name">YSEI</span></div>
+    <div class="slide" data-time="01:15" data-type="DJ"><span class="artist-name">Lumi.B</span></div>
+    <div class="slide" data-time="02:00" data-type="Live"><span class="artist-name">dAko</span></div>
+    <div class="slide" data-time="02:45" data-type="DJ"><span class="artist-name">PRXMX</span></div>
+    <div class="slide" data-time="03:30" data-type="Live"><span class="artist-name">Safi!</span></div>
+    <div class="slide" data-time="20:30" data-type="DJ"><span class="artist-name">CXLOE</span></div>
+    <div class="slide" data-time="21:15" data-type="Live"><span class="artist-name">Nneka</span></div>
+    <div class="slide" data-time="22:00" data-type="DJ"><span class="artist-name">fLo</span></div>
+    <div class="slide" data-time="22:45" data-type="Live"><span class="artist-name">XANA</span></div>
+    <div class="slide" data-time="23:30" data-type="DJ"><span class="artist-name">Pelo</span></div>
+    <div class="slide" data-time="00:15" data-type="Live"><span class="artist-name">DMBA</span></div>
+    <div class="slide" data-time="01:00" data-type="DJ"><span class="artist-name">Yosa!</span></div>
+    <div class="slide" data-time="01:45" data-type="Live"><span class="artist-name">KXNG</span></div>
+    <div class="slide" data-time="02:30" data-type="DJ"><span class="artist-name">Boé</span></div>
+    <div class="slide" data-time="03:15" data-type="Live"><span class="artist-name">Temi!</span></div>
+    <div class="slide" data-time="04:00" data-type="DJ"><span class="artist-name">AxMo</span></div>
+    <div class="slide" data-time="04:45" data-type="Live"><span class="artist-name">VVNDR</span></div>
+    <div class="slide" data-time="05:30" data-type="DJ"><span class="artist-name">Jace.B</span></div>
+    <div class="slide" data-time="06:15" data-type="Live"><span class="artist-name">KYMA</span></div>
+    <div class="slide" data-time="07:00" data-type="DJ"><span class="artist-name">Prxz</span></div>
+    <div class="slide" data-time="07:45" data-type="Live"><span class="artist-name">OwuSu</span></div>
+    <div class="slide" data-time="08:30" data-type="DJ"><span class="artist-name">SLWMO</span></div>
+    <div class="slide" data-time="09:15" data-type="Live"><span class="artist-name">Rexx!</span></div>
+    <div class="slide" data-time="10:00" data-type="DJ"><span class="artist-name">BuJu</span></div>
+    <div class="slide-spacer"></div>
+  </div>
+
+  <!-- Fixed grey brush stroke – mix-blend-mode: difference -->
+  <div class="brush"></div>
+
+  <!-- Fixed info overlay – sits below brush so it gets the difference effect -->
+  <div class="info-overlay">
+    <span class="info-name" id="infoName"></span>
+    <span class="info-time" id="infoTime"></span>
+    <span class="info-type" id="infoType"></span>
+  </div>
+
+  <script>
+    const container = document.querySelector('.scroll-container');
+    const slides    = Array.from(document.querySelectorAll('.slide'));
+    const infoName  = document.getElementById('infoName');
+    const infoTime  = document.getElementById('infoTime');
+    const infoType  = document.getElementById('infoType');
+
+    function getSpotlightSlide() {
+      const vh = container.clientHeight;
+      const centerY = vh / 2;
+      let closest = null;
+      let closestDist = Infinity;
+
+      slides.forEach(slide => {
+        const rect = slide.getBoundingClientRect();
+        const dist = Math.abs(rect.top + rect.height / 2 - centerY);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closest = slide;
+        }
+      });
+      return closest;
+    }
+
+    function update() {
+      const vh = container.clientHeight;
+      const centerY = vh / 2;
+
+      slides.forEach((slide, i) => {
+        const rect        = slide.getBoundingClientRect();
+        const slideCenter = rect.top + rect.height / 2;
+        const dist        = slideCenter - centerY;
+        const t           = Math.min(Math.abs(dist) / (vh * 0.5), 1);
+        const eased       = t * t;
+        const direction   = i % 2 === 0 ? 1 : -1;
+        const angle       = eased * 42 * direction;
+
+        slide.style.transform = `perspective(700px) rotateY(${angle}deg)`;
+      });
+
+      const spotlight = getSpotlightSlide();
+      if (spotlight) {
+        const nameEl = spotlight.querySelector('.artist-name');
+        infoName.textContent = nameEl ? nameEl.textContent : '';
+        infoTime.textContent = spotlight.dataset.time || '';
+        infoType.textContent = spotlight.dataset.type ? `(${spotlight.dataset.type})` : '';
+      }
+    }
+
+    container.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+    update();
+  </script>
+
+</body>
+</html>
