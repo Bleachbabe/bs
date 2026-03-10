@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- 1. FONT IMPORT — goes in <head> -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:ital,opsz,wght,wdth,YOPQ@0,8..144,100..900,25..151,0..132&display=swap" rel="stylesheet">
+  <style>
+    /* 2. RESET */
+    * { box-sizing: border-box; margin: 0; }
+
+    /* 3. YOUR EXISTING BODY STYLES — unchanged */
+    body {
+      font-family: "Roboto Flex", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 100vh;
+      background-color: #e5e5e5;
+    }
+
+    /* 4. WRAPPER — replaces your h1 or whatever held the text */
+    .text-wrapper {
+      position: relative;
+      display: inline-block;
+      line-height: 1.2;
+    }
+
+    /* 5. SHARED STYLES for all layers */
+    .text-layer {
+      font-family: "Roboto Flex", sans-serif;
+      font-size: 15vw;
+      /* font-weight: 900; */
+      white-space: nowrap;
+      animation: breathe 10s ease-in-out infinite;
+      display: block;
+    }
+
+    /* All layers except the first are stacked on top */
+    .text-layer:not(:first-child) {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* 6. STROKE LAYERS — outermost to innermost */
+    .layer-1 { color: black; -webkit-text-stroke: 48px #79d4f5; paint-order: stroke fill; z-index: 1; }
+    .layer-2 { color: black; -webkit-text-stroke: 36px #c8f53c; paint-order: stroke fill; z-index: 2; }
+    .layer-3 { color: black; -webkit-text-stroke: 24px red; paint-order: stroke fill; z-index: 3; }
+    .layer-4 { color: black; -webkit-text-stroke: 12px #cb39df; paint-order: stroke fill; z-index: 4; }
+    .layer-5 { color: black; z-index: 5; } /* ← clean black fill on top */
+
+    /* 7. YOUR BREATHING ANIMATION — unchanged from what we built */
+    @keyframes breathe {
+      0%, 100% {
+        font-variation-settings: 'wght' 200, 'wdth' 140, 'YOPQ' 80, 'GRAD' 0;
+        /* letter-spacing: -0.01em; */
+      }
+      50% {
+        font-variation-settings: 'wght' 1000, 'wdth' 80, 'YOPQ' 25, 'GRAD' -100;
+        /* letter-spacing: 0.02em; */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 8. HTML STRUCTURE — replaces your old <h1> or <svg> block -->
+  <div class="text-wrapper">
+    <!-- These 5 spans are your 4 strokes + 1 fill layer -->
+    <!-- Change "Welcome" in ALL 5 spans if you change the text -->
+    <span class="text-layer layer-1">backslash</span>
+    <span class="text-layer layer-2">backslash</span>
+    <span class="text-layer layer-3">backslash</span>
+    <span class="text-layer layer-4">backslash</span>
+    <span class="text-layer layer-5">backslash</span>
+  </div>
+
+</body>
+</html>

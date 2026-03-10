@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:ital,opsz,wght,wdth@0,8..144,100..900,25..151&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #c1cdca;
+    }
+
+    .stroked-text {
+      font-family: "Roboto Flex", sans-serif;
+      font-size: 15vw;
+      font-weight: weight;
+      font-style: normal;
+      font-variation-settings:
+        "slnt" 0,
+        "wdth" 500,
+        "GRAD" -200,
+        "XOPQ" 96,
+        "XTRA" 468,
+        "YOPQ" 25,
+        "YTAS" 750,
+        "YTDE" -203,
+        "YTFI" 738,
+        "YTLC" 514,
+        "YTUC" 712;
+      color: black;
+      position: relative;
+      
+      /* The actual breathing animation on the real element */
+      animation: breathe 8s ease-in-out infinite;
+
+      /* Outermost stroke layer via text-shadow won't work for this —
+         instead we stack pseudo-elements */
+    }
+
+    /* Each pseudo-element is an absolutely positioned copy */
+    .stroked-text::before,
+    .stroked-text::after {
+      content: attr(data-text);
+      position: absolute;
+      left: 0; top: 0;
+      width: 100%;
+      text-align: center;
+      font-family: inherit;
+      font-size: inherit;
+      animation: breathe 8s ease-in-out infinite;
+    }
+
+    /* Stroke layer 1 — blue (outermost) */
+    .stroked-text::before {
+      color: black;
+      -webkit-text-stroke: 28px #79d4f5;
+      paint-order: stroke fill;
+      z-index: -2;
+    }
+
+    /* Stroke layer 2 — yellow */
+    .stroked-text::after {
+      color: black;
+      -webkit-text-stroke: 14px #c8f53c;
+      paint-order: stroke fill;
+      z-index: -1;
+    }
+
+    @keyframes breathe {
+      0%, 100% {
+        font-variation-settings: 'wght' 250, 'wdth' 151, 'GRAD' -200, 'YOPQ' 25 ;
+        letter-spacing: -0.02em;
+      }
+      50% {
+        font-variation-settings: 'wght' 1000, 'wdth' 100, 'GRAD' -200, 'YOPQ' 25;
+        letter-spacing: 0.02em; 
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1 class="stroked-text" data-text="backslash">backslash</h1>
+</body>
+</html>
