@@ -38,7 +38,6 @@
     /* ── Individual artist slides ── */
     .slide {
       height: auto;
-      min-height: clamp(80px, 15vw, 250px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -80,7 +79,7 @@
       pointer-events: none;
       z-index: 10;
       mix-blend-mode: difference;
-      background: linear-gradient(to bottom, #b8b8b8 0%, #393939 25%, #292929 40%, #625d5d 48%, #fffadd 100%);
+      background: linear-gradient(to bottom, #b8b8b8 0%, #393939 25%, #292929 40%, #fffced 90%, #000000 100%);
     }
 
     /* Ensure scroll container and slides sit above bg */
@@ -108,7 +107,10 @@
       text-transform: uppercase;
       letter-spacing: 0.08em;
       mix-blend-mode: difference;
-      color: #fff;
+      color: #c8c8c8;
+      text-shadow:
+        0 0 8px rgba(255,255,255,0.9),
+        0 0 18px rgba(255,255,255,0.5);
     }
 
     .nav a:hover {
@@ -182,9 +184,9 @@
 
     /* ── Highlighted word in each sentence ── */
     .hw {
-      cursor: crosshair;
-      font-style: italic;
+      cursor: alias;
       letter-spacing: 0.04em;
+      color:#19562d;
     }
 
     /* ── Hover image overlay ── */
@@ -192,26 +194,27 @@
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%);
       z-index: 25;
       pointer-events: none;
       width: 42vw;
-      mix-blend-mode:hard-light;
       max-width: 620px;
       opacity: 0;
-      transition: opacity 0.35s ease;
+      transform: translate(-50%, -30%) perspective(800px) rotateY(18deg);
+      transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .img-overlay.visible {
       opacity: 1;
+      transform: translate(-50%, -50%) perspective(800px) rotateY(0deg);
     }
 
     .img-overlay img {
       width: 100%;
       height: auto;
       display: block;
-      -webkit-mask-image: radial-gradient(ellipse 75% 75% at center, black 20%, transparent 100%);
-      mask-image: radial-gradient(ellipse 75% 75% at center, black 30%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 80% 80% at center, black 50%, transparent 100%);
+      mask-image: radial-gradient(ellipse 80% 80% at center, black 50%, transparent 100%);
     }
 
     /* ── Blur fade at top of scroll area ── */
@@ -251,7 +254,6 @@
   <div class="scroll-container">
     <div class="slide-spacer"></div>
     <div class="slide" data-img="1"><span class="artist-name">Her voice cuts through the <span class="hw" data-img="1">silence</span> like a warm blade through fog — Anu Cato</span></div>
-    <div class="slide" data-img="2"><span class="artist-name">Rhythm flows through every gesture, every breath, every <span class="hw" data-img="2">heartbeat</span> — djadjamai</span></div>
     <div class="slide" data-img="3"><span class="artist-name">Sound architecture built from the <span class="hw" data-img="3">ruins</span> of forgotten melodies — FUMU</span></div>
     <div class="slide" data-img="4"><span class="artist-name">Electric <span class="hw" data-img="4">fury</span> wrapped in silk, a contradiction that makes perfect sense — Isi!</span></div>
     <div class="slide" data-img="5"><span class="artist-name">Movement and music <span class="hw" data-img="5">collapse</span> into one single moment of pure presence — GAto</span></div>
@@ -462,13 +464,14 @@
           closest     = slide;
         }
 
-        const t         = Math.min(absDist / (vh * 0.5), 1);
+        const t         = Math.min(absDist / (vh * 0.7), 1);
         const eased     = t * t;
         const direction = i % 2 === 0 ? 1 : -1;
         const angle     = eased * 60 * direction;
         const scale     = 2 - eased * 1.4;
 
         slide.style.transform = `perspective(700px) rotateY(${angle}deg) scale(${scale})`;
+        slide.style.minHeight = Math.max(24, scale * 100) + 'px';
       });
 
       if (closest) {
@@ -556,19 +559,38 @@
     // ── Highlighted word image hover ──────────────────────────────────
     const imgOverlay = document.getElementById('imgOverlay');
     const overlayImg = document.getElementById('overlayImg');
+    let activeHw = null;
+
+    function applyTilt(rotY, rotX) {
+      imgOverlay.style.transform =
+        `translate(-50%, -50%) perspective(800px) rotateY(${rotY}deg) rotateX(${rotX}deg)`;
+    }
 
     document.addEventListener('mouseover', (e) => {
       const hw = e.target.closest('.hw');
       if (hw) {
+        activeHw = hw;
         overlayImg.src = `content/${hw.dataset.img}.webp`;
         imgOverlay.classList.add('visible');
       }
     });
 
+    document.addEventListener('mousemove', (e) => {
+      if (!activeHw) return;
+      const rect = activeHw.getBoundingClientRect();
+      const cx = rect.left + rect.width  / 2;
+      const cy = rect.top  + rect.height / 2;
+      const dx = (e.clientX - cx) / (rect.width  / 2);  // -1 to 1
+      const dy = (e.clientY - cy) / (rect.height / 2);  // -1 to 1
+      applyTilt(dx * 20, -dy * 12);
+    });
+
     document.addEventListener('mouseout', (e) => {
       const hw = e.target.closest('.hw');
       if (hw && !hw.contains(e.relatedTarget)) {
+        activeHw = null;
         imgOverlay.classList.remove('visible');
+        applyTilt(0, 0);
       }
     });
   </script>
