@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artists</title>
+  <style>
+    @font-face {
+      font-family: 'ABCPerm';
+      src: local('ABC P3rman3nt Unlicens'),
+           local('ABCPermanentUnlicens'),
+           local('ABC Permanent Unlicens');
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    /* ── Stream wrapper: scrollable, fades top ── */
+    #stream-wrapper {
+      position: fixed;
+      inset: 0;
+      overflow-y: scroll;
+      scrollbar-width: none;
+      z-index: 5;
+      /* Fade out near the top */
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 22%);
+      mask-image: linear-gradient(to bottom, transparent 0%, black 22%);
+    }
+    #stream-wrapper::-webkit-scrollbar { display: none; }
+
+    /* ── Stream: normal flow, centered ── */
+    #stream {
+      width: 80vw;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding-top: 55vh;   /* empty scroll space above first entry */
+      padding-bottom: 44px;
+    }
+
+    /* ── Each sentence ── */
+    .stream-entry {
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(22px, 3.5vw, 56px);
+      color: #000;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.15;
+      display: block;
+      width: 100%;
+      transform-origin: center center;
+      text-shadow:
+        0   0   6px rgba(0,0,0,0.55),
+        1px 2px 6px rgba(0,0,0,0.30),
+       -1px 2px 6px rgba(0,0,0,0.30);
+      -webkit-text-stroke: 0.5px rgba(0,0,0,0.4);
+      /* Entrance fade */
+      opacity: 0;
+      transition: opacity 0.45s ease;
+    }
+    .stream-entry.in {
+      opacity: 1;
+    }
+
+    /* ── Colour brush overlay ── */
+    .brush {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+      mix-blend-mode: difference;
+      background: linear-gradient(to bottom, #fff 0%, #000 30%, #fff 65%, #0044ff 88%, #0011cc 100%);
+    }
+
+    /* ── Nav ── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 14px 0 12px;
+      gap: clamp(16px, 3vw, 48px);
+    }
+    .nav a {
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(10px, 1.1vw, 16px);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      mix-blend-mode: difference;
+      color: #fff;
+    }
+    .nav a:hover { opacity: 0.6; }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <a href="#">Backslash</a>
+    <a href="#">Artists</a>
+    <a href="#">Timetable</a>
+    <a href="#">Day</a>
+    <a href="#">Gallery</a>
+    <a href="#">Info</a>
+  </nav>
+
+  <div id="stream-wrapper">
+    <div id="stream"></div>
+  </div>
+
+  <div class="brush"></div>
+
+  <script>
+    const entries = [
+      { text: "Her voice cuts through the silence like a warm blade through fog — Anu Cato",          img: 1  },
+      { text: "Rhythm flows through every gesture, every breath, every heartbeat — djadjamai",        img: 2  },
+      { text: "Sound architecture built from the ruins of forgotten melodies — FUMU",                 img: 3  },
+      { text: "Electric fury wrapped in silk, a contradiction that makes perfect sense — Isi!",       img: 4  },
+      { text: "Movement and music collapse into one single moment of pure presence — GAto",           img: 5  },
+      { text: "The night always sounds different when she steps up to the decks — NaKo",              img: 6  },
+      { text: "Bass frequencies that rearrange the furniture inside your chest cavity — YSEI",        img: 7  },
+      { text: "Luminous frequencies bleeding quietly through the cracks of the ordinary — Lumi.B",    img: 8  },
+      { text: "Percussion conversations with the ghosts of distant continents — dAko",                img: 9  },
+      { text: "The future sounds exactly like this, raw and unfiltered and completely alive — PRXMX", img: 10 },
+      { text: "Melodies that arrive like letters from a place you have never been — Safi!",           img: 11 },
+      { text: "Her sets dissolve every boundary between the body and the dancefloor — CXLOE",         img: 12 },
+      { text: "Ancient rhythms dressed in neon, tradition wearing tomorrow's clothes — Nneka",        img: 13 },
+      { text: "Liquid music poured slow and deliberate into the waiting dark — fLo",                  img: 14 },
+      { text: "Sonic landscapes that stretch far beyond what the ears expect to find — XANA",         img: 15 },
+      { text: "Energy shaped like thunder, delivered with the precision of a surgeon — Pelo",         img: 16 },
+      { text: "Every track a small revolution, every beat a quiet declaration of intent — DMBA",      img: 1  },
+      { text: "She builds entire cathedrals out of 808s and whispered frequencies — Yosa!",           img: 2  },
+      { text: "Authority in every drop, power held inside every carefully placed silence — KXNG",     img: 3  },
+      { text: "Tenderness and tension woven together into something entirely new — Boé",              img: 4  },
+      { text: "The crowd becomes one single organism whenever she touches the decks — Temi!",         img: 5  },
+      { text: "Industrial textures softened by a deep instinct for the profoundly human — AxMo",      img: 6  },
+      { text: "Wandering through sound like a nomad who always manages to find the way home — VVNDR", img: 7  },
+      { text: "Beats assembled carefully from the wreckage of what music used to be — Jace.B",        img: 8  },
+      { text: "Waves of sound that break and recede and always leave you fundamentally changed — KYMA",img: 9  },
+      { text: "Tension built slowly, released suddenly, leaving nothing behind but resonance — Prxz", img: 10 },
+      { text: "Heritage reimagined with care, tradition pushed confidently past every known limit — OwuSu", img: 11 },
+      { text: "Slow motion emotion, every single note stretched out to its furthest possible edge — SLWMO", img: 12 },
+      { text: "Raw energy distilled into something sharp and precise and entirely necessary — Rexx!",  img: 13 },
+      { text: "The final chapter of the night, written slowly in bass and disappearing light — BuJu",  img: 14 },
+    ];
+
+    // ── Audio ─────────────────────────────────────────────────────────
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function noise(dur, filter, freq) {
+      const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * dur, audioCtx.sampleRate);
+      const d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const src = audioCtx.createBufferSource(); src.buffer = buf;
+      const g = audioCtx.createGain();
+      if (filter) { const f = audioCtx.createBiquadFilter(); f.type = filter; f.frequency.value = freq; src.connect(f); f.connect(g); }
+      else src.connect(g);
+      g.connect(audioCtx.destination);
+      return { src, gain: g };
+    }
+    function osc(freq, type = 'sine') {
+      const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+      o.type = type; o.frequency.value = freq; o.connect(g); g.connect(audioCtx.destination);
+      return { osc: o, gain: g };
+    }
+    function env(gn, peak, decay, t) {
+      gn.gain.setValueAtTime(peak, t);
+      gn.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+    }
+    const sounds = {
+      1:  t => { const {src,gain:g}=noise(0.2,'bandpass',800); env(g,0.7,0.18,t); g.gain.setValueAtTime(0.7,t); src.start(t); src.stop(t+0.2); const {osc:o,gain:og}=osc(200); env(og,0.4,0.08,t); o.start(t); o.stop(t+0.1); },
+      2:  t => { const {osc:o,gain:g}=osc(60); o.frequency.setValueAtTime(160,t); o.frequency.exponentialRampToValueAtTime(40,t+0.1); env(g,0.9,0.3,t); o.start(t); o.stop(t+0.35); },
+      3:  t => { const {src,gain:g}=noise(0.08,'highpass',8000); env(g,0.4,0.05,t); g.gain.setValueAtTime(0.4,t); src.start(t); src.stop(t+0.08); },
+      4:  t => { [0,0.01,0.02].forEach(d=>{ const {src,gain:g}=noise(0.07,'bandpass',1200); g.gain.setValueAtTime(0.5,t+d); g.gain.exponentialRampToValueAtTime(0.0001,t+d+0.06); src.start(t+d); src.stop(t+d+0.07); }); },
+      5:  t => { const {osc:o,gain:g}=osc(320); o.frequency.setValueAtTime(320,t); o.frequency.exponentialRampToValueAtTime(180,t+0.15); env(g,0.7,0.2,t); o.start(t); o.stop(t+0.25); },
+      6:  t => { const {osc:o,gain:g}=osc(100); o.frequency.setValueAtTime(100,t); o.frequency.exponentialRampToValueAtTime(55,t+0.2); env(g,0.8,0.3,t); o.start(t); o.stop(t+0.35); },
+      7:  t => { const {src,gain:g}=noise(0.4,'highpass',7000); env(g,0.35,0.35,t); g.gain.setValueAtTime(0.35,t); src.start(t); src.stop(t+0.4); },
+      8:  t => { const {osc:o,gain:g}=osc(900,'triangle'); env(g,0.6,0.04,t); o.start(t); o.stop(t+0.05); const {src,gain:ng}=noise(0.04,'bandpass',1800); env(ng,0.3,0.03,t); ng.gain.setValueAtTime(0.3,t); src.start(t); src.stop(t+0.04); },
+      9:  t => { const {osc:o,gain:g}=osc(55); o.frequency.setValueAtTime(200,t); o.frequency.exponentialRampToValueAtTime(40,t+0.15); env(g,1.0,0.6,t); o.start(t); o.stop(t+0.7); },
+      10: t => { [562,845].forEach(f=>{ const {osc:o,gain:g}=osc(f,'square'); env(g,0.25,0.5,t); o.start(t); o.stop(t+0.6); }); },
+      11: t => { const {src,gain:g}=noise(1.0,'highpass',5000); g.gain.setValueAtTime(0.3,t); g.gain.exponentialRampToValueAtTime(0.0001,t+1.0); src.start(t); src.stop(t+1.0); },
+      12: t => { const {osc:o,gain:g}=osc(1400,'sine'); env(g,0.7,0.025,t); o.start(t); o.stop(t+0.03); },
+      13: t => { const {src,gain:g}=noise(0.25,'bandpass',500); env(g,0.6,0.22,t); g.gain.setValueAtTime(0.6,t); src.start(t); src.stop(t+0.25); const {osc:o,gain:og}=osc(120); env(og,0.5,0.1,t); o.start(t); o.stop(t+0.12); },
+      14: t => { const {src,gain:g}=noise(0.06,'bandpass',5000); env(g,0.25,0.05,t); g.gain.setValueAtTime(0.25,t); src.start(t); src.stop(t+0.06); },
+      15: t => { const {osc:o,gain:g}=osc(440,'triangle'); o.frequency.setValueAtTime(660,t); o.frequency.exponentialRampToValueAtTime(220,t+0.12); env(g,0.6,0.15,t); o.start(t); o.stop(t+0.2); },
+      16: t => { const {osc:o,gain:g}=osc(40); o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(30,t+0.2); env(g,1.0,0.5,t); o.start(t); o.stop(t+0.55); },
+    };
+    function playSample(n) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const fn = sounds[parseInt(n)]; if (fn) fn(audioCtx.currentTime);
+    }
+    // ── End audio ─────────────────────────────────────────────────────
+
+    const wrapper = document.getElementById('stream-wrapper');
+    const stream  = document.getElementById('stream');
+    let index        = 0;
+    let entryCounter = 0;
+    let userScrolledUp = false;
+
+    // Track whether user scrolled away from bottom
+    wrapper.addEventListener('scroll', () => {
+      const atBottom = wrapper.scrollHeight - wrapper.scrollTop - wrapper.clientHeight < 80;
+      userScrolledUp = !atBottom;
+    }, { passive: true });
+
+    function scrollToBottom() {
+      wrapper.scrollTop = wrapper.scrollHeight;
+    }
+
+    function push() {
+      const entry = entries[index];
+
+      const el = document.createElement('div');
+      el.className = 'stream-entry';
+      el.textContent = entry.text;
+      el.dataset.n = entryCounter++;
+      stream.appendChild(el);
+
+      // Trigger entrance fade next frame
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('in')));
+
+      playSample(entry.img);
+      index = (index + 1) % entries.length;
+
+      // Only auto-scroll if user hasn't scrolled up to read
+      if (!userScrolledUp) scrollToBottom();
+    }
+
+    // ── Tilt loop ─────────────────────────────────────────────────────
+    // Reference Y: the bottom area where the newest entry sits
+    function tiltLoop() {
+      const refY    = window.innerHeight - 60; // "active" focal point
+      const rangeY  = window.innerHeight * 0.72;
+      const all     = stream.querySelectorAll('.stream-entry');
+
+      all.forEach(el => {
+        const rect   = el.getBoundingClientRect();
+        const center = rect.top + rect.height / 2;
+        const dist   = Math.abs(refY - center);
+        const t      = Math.min(dist / rangeY, 1);
+        const eased  = t * t;
+        const dir    = parseInt(el.dataset.n) % 2 === 0 ? 1 : -1;
+        const angle  = eased * 42 * dir;
+        const scale  = Math.max(3 - eased * 2.8, 0.18);
+
+        el.style.transform =
+          `perspective(700px) rotateY(${angle}deg) scale(${scale}) scaleY(0.58)`;
+      });
+
+      requestAnimationFrame(tiltLoop);
+    }
+    requestAnimationFrame(tiltLoop);
+    // ── End tilt ──────────────────────────────────────────────────────
+
+    // First entry immediately, then one every 4 s
+    push();
+    scrollToBottom();
+    setInterval(push, 4000);
+
+    ['click','scroll','mousemove'].forEach(e =>
+      document.addEventListener(e, () => audioCtx.resume(), { once: true, passive: true })
+    );
+  </script>
+
+</body>
+</html>

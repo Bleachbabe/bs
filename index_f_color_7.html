@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Artists – Backslash</title>
+  <style>
+    @font-face {
+      font-family: 'ABCPerm';
+      src: local('ABC P3rman3nt Unlicens'),
+           local('ABCPermanentUnlicens'),
+           local('ABC Permanent Unlicens');
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    /* ── Snap scroll container ── */
+    .scroll-container {
+      width: 100%;
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+      position: relative;
+      z-index: 1;
+    }
+    .scroll-container::-webkit-scrollbar { display: none; }
+
+    /* ── Artist slides ── */
+    .slide {
+      height: clamp(70px, 10vw, 140px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      scroll-snap-align: center;
+    }
+
+    .slide-spacer {
+      height: 50vh;
+      scroll-snap-align: none;
+    }
+
+    /* ── Name as link ── */
+    .artist-link {
+      text-decoration: none;
+      display: block;
+    }
+
+    .artist-name {
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(72px, 14vw, 220px);
+      color: #000;
+      white-space: nowrap;
+      line-height: 1;
+      transform: scaleY(0.58);
+      transform-origin: center center;
+      display: block;
+      cursor: pointer;
+      text-shadow:
+        0   0   6px rgba(0,0,0,0.55),
+        1px 2px 6px rgba(0,0,0,0.30),
+       -1px 2px 6px rgba(0,0,0,0.30);
+      -webkit-text-stroke: 0.5px rgba(0,0,0,0.4);
+      transition: opacity 0.15s ease;
+    }
+
+    .artist-link:hover .artist-name {
+      opacity: 0.65;
+    }
+
+    /* ── Colour gradient brush overlay ── */
+    .brush {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 10;
+      mix-blend-mode: difference;
+      background: linear-gradient(to bottom,
+        #fff 0%,
+        #000 25%,
+        #ff69b4 50%,
+        #000 75%,
+        #fff 100%
+      );
+    }
+
+    /* ── Top navigation ── */
+    .top-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: clamp(16px, 3vw, 48px);
+      padding: clamp(12px, 2vw, 26px) 0;
+    }
+
+    .top-nav::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      height: 200%;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.82) 0%, rgba(255,255,255,0.55) 60%, transparent 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .top-nav a {
+      font-family: 'ABCPerm', 'Arial Black', Helvetica, sans-serif;
+      font-weight: 900;
+      font-size: clamp(12px, 1.5vw, 22px);
+      color: #000;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transform: scaleY(0.58);
+      transform-origin: center center;
+      display: block;
+      opacity: 0.75;
+      transition: opacity 0.2s ease;
+    }
+    .top-nav a:hover { opacity: 1; }
+    .top-nav a.active { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <nav class="top-nav">
+    <a href="#">Backslash</a>
+    <a href="#" class="active">Artists</a>
+    <a href="#">Timetable</a>
+    <a href="#">Day</a>
+    <a href="#">Gallery</a>
+    <a href="#">Info</a>
+  </nav>
+
+  <div class="scroll-container">
+    <div class="slide-spacer"></div>
+    <div class="slide" data-img="1"><a class="artist-link" href="artists/anu-cato.html"><span class="artist-name">Anu Cato</span></a></div>
+    <div class="slide" data-img="2"><a class="artist-link" href="artists/djadjamai.html"><span class="artist-name">djadjamai</span></a></div>
+    <div class="slide" data-img="3"><a class="artist-link" href="artists/fumu.html"><span class="artist-name">FUMU</span></a></div>
+    <div class="slide" data-img="4"><a class="artist-link" href="artists/isi.html"><span class="artist-name">Isi!</span></a></div>
+    <div class="slide" data-img="5"><a class="artist-link" href="artists/gato.html"><span class="artist-name">GAto</span></a></div>
+    <div class="slide" data-img="6"><a class="artist-link" href="artists/nako.html"><span class="artist-name">NaKo</span></a></div>
+    <div class="slide" data-img="7"><a class="artist-link" href="artists/ysei.html"><span class="artist-name">YSEI</span></a></div>
+    <div class="slide" data-img="8"><a class="artist-link" href="artists/lumi-b.html"><span class="artist-name">Lumi.B</span></a></div>
+    <div class="slide" data-img="9"><a class="artist-link" href="artists/dako.html"><span class="artist-name">dAko</span></a></div>
+    <div class="slide" data-img="10"><a class="artist-link" href="artists/prxmx.html"><span class="artist-name">PRXMX</span></a></div>
+    <div class="slide" data-img="11"><a class="artist-link" href="artists/safi.html"><span class="artist-name">Safi!</span></a></div>
+    <div class="slide" data-img="12"><a class="artist-link" href="artists/cxloe.html"><span class="artist-name">CXLOE</span></a></div>
+    <div class="slide" data-img="13"><a class="artist-link" href="artists/nneka.html"><span class="artist-name">Nneka</span></a></div>
+    <div class="slide" data-img="14"><a class="artist-link" href="artists/flo.html"><span class="artist-name">fLo</span></a></div>
+    <div class="slide" data-img="15"><a class="artist-link" href="artists/xana.html"><span class="artist-name">XANA</span></a></div>
+    <div class="slide" data-img="16"><a class="artist-link" href="artists/pelo.html"><span class="artist-name">Pelo</span></a></div>
+    <div class="slide" data-img="1"><a class="artist-link" href="artists/dmba.html"><span class="artist-name">DMBA</span></a></div>
+    <div class="slide" data-img="2"><a class="artist-link" href="artists/yosa.html"><span class="artist-name">Yosa!</span></a></div>
+    <div class="slide" data-img="3"><a class="artist-link" href="artists/kxng.html"><span class="artist-name">KXNG</span></a></div>
+    <div class="slide" data-img="4"><a class="artist-link" href="artists/boe.html"><span class="artist-name">Boé</span></a></div>
+    <div class="slide" data-img="5"><a class="artist-link" href="artists/temi.html"><span class="artist-name">Temi!</span></a></div>
+    <div class="slide" data-img="6"><a class="artist-link" href="artists/axmo.html"><span class="artist-name">AxMo</span></a></div>
+    <div class="slide" data-img="7"><a class="artist-link" href="artists/vvndr.html"><span class="artist-name">VVNDR</span></a></div>
+    <div class="slide" data-img="8"><a class="artist-link" href="artists/jace-b.html"><span class="artist-name">Jace.B</span></a></div>
+    <div class="slide" data-img="9"><a class="artist-link" href="artists/kyma.html"><span class="artist-name">KYMA</span></a></div>
+    <div class="slide" data-img="10"><a class="artist-link" href="artists/prxz.html"><span class="artist-name">Prxz</span></a></div>
+    <div class="slide" data-img="11"><a class="artist-link" href="artists/owusu.html"><span class="artist-name">OwuSu</span></a></div>
+    <div class="slide" data-img="12"><a class="artist-link" href="artists/slwmo.html"><span class="artist-name">SLWMO</span></a></div>
+    <div class="slide" data-img="13"><a class="artist-link" href="artists/rexx.html"><span class="artist-name">Rexx!</span></a></div>
+    <div class="slide" data-img="14"><a class="artist-link" href="artists/buju.html"><span class="artist-name">BuJu</span></a></div>
+    <div class="slide-spacer"></div>
+  </div>
+
+  <div class="brush"></div>
+
+  <script>
+    const container = document.querySelector('.scroll-container');
+    const slides    = Array.from(document.querySelectorAll('.slide'));
+
+    let currentImg = null;
+
+    // ── Audio synthesis ──────────────────────────────────────────────
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function noise(duration, filter = null, filterFreq = 2000) {
+      const buf  = audioCtx.createBuffer(1, audioCtx.sampleRate * duration, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      const g = audioCtx.createGain();
+      if (filter) {
+        const f = audioCtx.createBiquadFilter();
+        f.type = filter; f.frequency.value = filterFreq;
+        src.connect(f); f.connect(g);
+      } else {
+        src.connect(g);
+      }
+      g.connect(audioCtx.destination);
+      return { src, gain: g };
+    }
+
+    function osc(freq, type = 'sine') {
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type; o.frequency.value = freq;
+      o.connect(g); g.connect(audioCtx.destination);
+      return { osc: o, gain: g };
+    }
+
+    function env(gainNode, peak, decay, t) {
+      gainNode.gain.setValueAtTime(peak, t);
+      gainNode.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+    }
+
+    const sounds = {
+      1:  (t) => { const { src, gain: g } = noise(0.2, 'bandpass', 800); env(g, 0.7, 0.18, t); g.gain.setValueAtTime(0.7, t); src.start(t); src.stop(t + 0.2); const { osc: o, gain: og } = osc(200); env(og, 0.4, 0.08, t); o.start(t); o.stop(t + 0.1); },
+      2:  (t) => { const { osc: o, gain: g } = osc(60); o.frequency.setValueAtTime(160, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.1); env(g, 0.9, 0.3, t); o.start(t); o.stop(t + 0.35); },
+      3:  (t) => { const { src, gain: g } = noise(0.08, 'highpass', 8000); env(g, 0.4, 0.05, t); g.gain.setValueAtTime(0.4, t); src.start(t); src.stop(t + 0.08); },
+      4:  (t) => { [0, 0.01, 0.02].forEach(d => { const { src, gain: g } = noise(0.07, 'bandpass', 1200); g.gain.setValueAtTime(0.5, t+d); g.gain.exponentialRampToValueAtTime(0.0001, t+d+0.06); src.start(t+d); src.stop(t+d+0.07); }); },
+      5:  (t) => { const { osc: o, gain: g } = osc(320); o.frequency.setValueAtTime(320, t); o.frequency.exponentialRampToValueAtTime(180, t + 0.15); env(g, 0.7, 0.2, t); o.start(t); o.stop(t + 0.25); },
+      6:  (t) => { const { osc: o, gain: g } = osc(100); o.frequency.setValueAtTime(100, t); o.frequency.exponentialRampToValueAtTime(55, t + 0.2); env(g, 0.8, 0.3, t); o.start(t); o.stop(t + 0.35); },
+      7:  (t) => { const { src, gain: g } = noise(0.4, 'highpass', 7000); env(g, 0.35, 0.35, t); g.gain.setValueAtTime(0.35, t); src.start(t); src.stop(t + 0.4); },
+      8:  (t) => { const { osc: o, gain: g } = osc(900, 'triangle'); env(g, 0.6, 0.04, t); o.start(t); o.stop(t + 0.05); const { src, gain: ng } = noise(0.04, 'bandpass', 1800); env(ng, 0.3, 0.03, t); ng.gain.setValueAtTime(0.3, t); src.start(t); src.stop(t + 0.04); },
+      9:  (t) => { const { osc: o, gain: g } = osc(55); o.frequency.setValueAtTime(200, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.15); env(g, 1.0, 0.6, t); o.start(t); o.stop(t + 0.7); },
+      10: (t) => { [562, 845].forEach(f => { const { osc: o, gain: g } = osc(f, 'square'); env(g, 0.25, 0.5, t); o.start(t); o.stop(t + 0.6); }); },
+      11: (t) => { const { src, gain: g } = noise(1.0, 'highpass', 5000); g.gain.setValueAtTime(0.3, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.0); src.start(t); src.stop(t + 1.0); },
+      12: (t) => { const { osc: o, gain: g } = osc(1400, 'sine'); env(g, 0.7, 0.025, t); o.start(t); o.stop(t + 0.03); },
+      13: (t) => { const { src, gain: g } = noise(0.25, 'bandpass', 500); env(g, 0.6, 0.22, t); g.gain.setValueAtTime(0.6, t); src.start(t); src.stop(t + 0.25); const { osc: o, gain: og } = osc(120); env(og, 0.5, 0.1, t); o.start(t); o.stop(t + 0.12); },
+      14: (t) => { const { src, gain: g } = noise(0.06, 'bandpass', 5000); env(g, 0.25, 0.05, t); g.gain.setValueAtTime(0.25, t); src.start(t); src.stop(t + 0.06); },
+      15: (t) => { const { osc: o, gain: g } = osc(440, 'triangle'); o.frequency.setValueAtTime(660, t); o.frequency.exponentialRampToValueAtTime(220, t + 0.12); env(g, 0.6, 0.15, t); o.start(t); o.stop(t + 0.2); },
+      16: (t) => { const { osc: o, gain: g } = osc(40); o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(30, t + 0.2); env(g, 1.0, 0.5, t); o.start(t); o.stop(t + 0.55); },
+    };
+
+    function playSample(imgNum) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const fn = sounds[parseInt(imgNum)];
+      if (fn) fn(audioCtx.currentTime);
+    }
+    // ── End audio ────────────────────────────────────────────────────
+
+    function update() {
+      const vh      = container.clientHeight;
+      const centerY = vh / 2;
+      let   closest = null;
+      let   closestDist = Infinity;
+
+      slides.forEach((slide, i) => {
+        const rect        = slide.getBoundingClientRect();
+        const slideCenter = rect.top + rect.height / 2;
+        const absDist     = Math.abs(slideCenter - centerY);
+
+        if (absDist < closestDist) {
+          closestDist = absDist;
+          closest     = slide;
+        }
+
+        const t       = Math.min(absDist / (vh * 0.5), 1);
+        const eased   = t * t * (3 - 2 * t); // smoothstep
+        const dir     = i % 2 === 0 ? 1 : -1;
+        const angle   = eased * 42 * dir;
+        const scale   = 1 + eased * 1;
+
+        const nameEl = slide.querySelector('.artist-name');
+        if (nameEl) nameEl.style.transform = `perspective(700px) rotateY(${angle}deg) scale(${scale}) scaleY(0.58)`;
+      });
+
+      if (closest && closest.dataset.img !== currentImg) {
+        currentImg = closest.dataset.img;
+        playSample(closest.dataset.img);
+      }
+    }
+
+    container.addEventListener('scroll', () => requestAnimationFrame(update), { passive: true });
+    update();
+  </script>
+
+</body>
+</html>
