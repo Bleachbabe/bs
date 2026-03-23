@@ -44,6 +44,7 @@
     }
     #tabs::-webkit-scrollbar { display: none; }
 
+    /* ── Regular file tabs ── */
     #tabs button {
       flex: 0 0 auto;
       height: 22px;
@@ -74,6 +75,29 @@
       height: 24px;
       font-weight: 600;
     }
+
+    /* ── Folder separator tabs ── */
+    #tabs .folder {
+      flex: 0 0 auto;
+      height: 22px;
+      background: #9a9a9a;
+      border: 1px solid #808080;
+      border-bottom: none;
+      border-radius: 3px 3px 0 0;
+      color: #f5f5f5;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0 10px;
+      white-space: nowrap;
+      cursor: default;
+      user-select: none;
+      /* small gap before/after folder tab */
+      margin-left: 6px;
+      margin-right: 2px;
+    }
   </style>
 </head>
 <body>
@@ -83,51 +107,101 @@
   <div id="tabs"></div>
 
   <script>
-    const designs = [
-      { label: 'landing · clean', file:'index_landing5_reverse.html' },
-      { label: 'bw',              file: 'index_bw.html' },
-      { label: 'bw · smalltext',  file: 'index_bw2_smalltext.html' },
-      { label: 'bw · sound',      file: 'index_bw3_sound.html' },
-      { label: 'bw · images',     file: 'index_bw4_images.html' },
-      { label: 'color',           file: 'index_color.html' },
-      { label: 'color · text',    file: 'index_color2_imagesandtext.html' },
-      { label: 'color · text 2',  file: 'index_color3_imagesandtext copy.html' },
-      { label: 'color · links',   file: 'index_color5_links.html' },
-      { label: 'landing',         file: 'index_landing.html' },
-      { label: 'landing · rev',   file: 'index_landing2_reverse.html' },
-      { label: 'landing · rev2',  file: 'index_landing3_reverse.html' },
-      { label: 'landing · blocks',file: 'index_landing4_blocks.html' },
-      { label: 'landing · track', file: 'index_landing6_track.html' },
-      { label: 'landing · reverb',file: 'index_landing7_track.html' },
-      { label: 'landing · fx',    file: 'index_landing6_sound.html' },
-      { label: 'landing · karaoke',file:'index_landing8_blocks.html' },
-      { label: 'landing · autoplay',file:'index_landing4_reverse.html' },
-      { label: 'bs · roboto',     file: 'index_bstestroboto.html' },
-      { label: 'bs · roboto 2',   file: 'index_bstestroboto2.html' },
-      { label: 'romain · var',    file: 'index_romainvariable.html' },
-      { label: 'romain · fungi',  file: 'index_romainfungi.html' },
+    // ─────────────────────────────────────────────
+    // TAB DEFINITIONS
+    // To add a new file:
+    //   _f_ files → add to the firstDrafts array
+    //   _n_ files → add to the newDrafts array
+    // ─────────────────────────────────────────────
+
+    const firstDrafts = [
+      // ── bw ──
+      { label: 'bw · 1',        file: 'index_f_bw_1.html' },
+      { label: 'bw · 2',        file: 'index_f_bw_2.html' },
+      { label: 'bw · 3',        file: 'index_f_bw_3.html' },
+      { label: 'bw · 4',        file: 'index_f_bw_4.html' },
+      // ── color ──
+      { label: 'color · 1',     file: 'index_f_color_1.html' },
+      { label: 'color · 2',     file: 'index_f_color_2.html' },
+      { label: 'color · 3',     file: 'index_f_color_3.html' },
+      { label: 'color · 4',     file: 'index_f_color_4.html' },
+      { label: 'color · 5',     file: 'index_f_color_5.html' },
+      { label: 'color · 6',     file: 'index_f_color_6.html' },
+      { label: 'color · 7',     file: 'index_f_color_7.html' },
+      // ── landing ──
+      { label: 'landing · 1',   file: 'index_f_landing_1.html' },
+      { label: 'landing · 2',   file: 'index_f_landing_2.html' },
+      { label: 'landing · 3',   file: 'index_f_landing_3.html' },
+      { label: 'landing · 4',   file: 'index_f_landing_4.html' },
+      { label: 'landing · 5',   file: 'index_f_landing_5.html' },
+      { label: 'landing · 6',   file: 'index_f_landing_6.html' },
+      { label: 'landing · 7',   file: 'index_f_landing_7.html' },
+      { label: 'landing · 8',   file: 'index_f_landing_8.html' },
+      { label: 'landing · 9',   file: 'index_f_landing_9.html' },
+      { label: 'landing · 10',  file: 'index_f_landing_10.html' },
+      { label: 'landing · 11',  file: 'index_f_landing_11.html' },
+      { label: 'landing · 12',  file: 'index_f_landing_12.html' },
+      // ── roboto ──
+      { label: 'roboto · 1',    file: 'index_f_bstestroboto_1.html' },
+      { label: 'roboto · 2',    file: 'index_f_bstestroboto_2.html' },
+      // ── romain ──
+      { label: 'romain · 1',    file: 'index_f_romain_1.html' },
+      { label: 'romain · 2',    file: 'index_f_romain_2.html' },
     ];
 
-    const stage   = document.getElementById('stage');
-    const tabsEl  = document.getElementById('tabs');
-    let   current = null;
+    const newDrafts = [
+      { label: 'color · 1',     file: 'index_n_color_1.html' },
+      { label: 'color · 2',     file: 'index_n_color_2.html' },
+      { label: 'color · 3',     file: 'index_n_color_3.html' },
+      { label: 'landing · 1',   file: 'index_n_landing_1.html' },
+      { label: 'landing · 2',   file: 'index_n_landing_2.html' },
+      { label: 'starting · 1',  file: 'index_n_starting_1.html' },
+    ];
 
-    designs.forEach((d, i) => {
+    // ─────────────────────────────────────────────
+    // BUILD TABS
+    // ─────────────────────────────────────────────
+    const stage  = document.getElementById('stage');
+    const tabsEl = document.getElementById('tabs');
+    let current  = null;
+
+    // Flat list of all clickable tabs (for activate() index)
+    const allTabs = [];
+
+    function addFolder(name) {
+      const sep = document.createElement('span');
+      sep.className = 'folder';
+      sep.textContent = name;
+      tabsEl.appendChild(sep);
+    }
+
+    function addTab(d) {
+      const idx = allTabs.length;
+      allTabs.push(d);
       const btn = document.createElement('button');
       btn.textContent = d.label;
-      btn.addEventListener('click', () => activate(i));
+      btn.dataset.idx = idx;
+      btn.addEventListener('click', () => activate(idx));
       tabsEl.appendChild(btn);
-    });
+    }
+
+    // New Drafts group
+    addFolder('📁 New Drafts');
+    newDrafts.forEach(addTab);
+
+    // First Drafts group
+    addFolder('📁 First Drafts');
+    firstDrafts.forEach(addTab);
 
     function activate(i) {
       if (current === i) return;
       current = i;
-      stage.src = designs[i].file;
-      Array.from(tabsEl.children).forEach((b, j) => {
-        b.classList.toggle('active', j === i);
+      stage.src = allTabs[i].file;
+      tabsEl.querySelectorAll('button').forEach(b => {
+        b.classList.toggle('active', +b.dataset.idx === i);
       });
-      // Scroll tab into view
-      tabsEl.children[i].scrollIntoView({ inline: 'nearest', behavior: 'smooth' });
+      tabsEl.querySelector(`button[data-idx="${i}"]`)
+        .scrollIntoView({ inline: 'nearest', behavior: 'smooth' });
     }
 
     // Load first tab on start
